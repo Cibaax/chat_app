@@ -48,7 +48,6 @@ class MessageController extends Controller
 
         $message->load('user');
 
-        // Broadcast el mensaje a todos los participantes
         broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
@@ -65,7 +64,6 @@ class MessageController extends Controller
             'message' => 'required|string|max:1000',
         ]);
 
-        // Solo permitir edición dentro de 5 minutos
         if ($message->created_at->diffInMinutes(now()) > 5) {
             return response()->json([
                 'message' => 'Message can only be edited within 5 minutes of sending'

@@ -15,10 +15,10 @@ class UserController extends Controller
         ]);
 
         $users = User::when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-            })
-            ->where('id', '!=', $request->user()->id) // Excluir usuario actual
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        })
+            ->where('id', '!=', $request->user()->id)
             ->limit(20)
             ->get(['id', 'name', 'email']);
 
@@ -33,8 +33,12 @@ class UserController extends Controller
             'query' => 'required|string|min:2|max:255',
         ]);
 
-        $users = User::where('name', 'like', "%{$request->query}%")
-            ->orWhere('email', 'like', "%{$request->query}%")
+        $searchQuery = $request->input('query');
+
+        $users = User::where(function ($q) use ($searchQuery) {
+            $q->where('name', 'like', "%{$searchQuery}%")
+                ->orWhere('email', 'like', "%{$searchQuery}%");
+        })
             ->where('id', '!=', $request->user()->id)
             ->limit(10)
             ->get(['id', 'name', 'email']);
